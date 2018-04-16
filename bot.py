@@ -11,6 +11,8 @@ logging.basicConfig(filename='server.log',
 logger = logging.getLogger(__name__)
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or('!'), pm_help=True)
+bot.load_extension('cogs.web_crawler')
+bot.load_extension('cogs.info')
 
 
 @bot.event
@@ -24,13 +26,13 @@ async def on_message(message):
     if message.author.bot:
         pass
     else:
-        logger.info(f'AUTHOR: {message.author}, CHANNEL: {message.channel}, CONTENT: {message.content}, TYPE: {message.channel.type}')
+        logger.info(f'AUTHOR: {message.author}, CHANNEL: {message.channel}, CONTENT: {message.content}')
         await bot.process_commands(message)
 
 
 @bot.command()
-async def ping():
-    await bot.say('Pong')
+async def ping(ctx):
+    await ctx.send('Pong')
 
 
 bot.run(config.TOKEN)
