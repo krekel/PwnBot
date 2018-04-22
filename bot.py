@@ -1,6 +1,7 @@
 import config
 import discord
 import logging
+import aiohttp
 
 from discord.ext import commands
 
@@ -11,12 +12,15 @@ logging.basicConfig(filename='server.log',
 logger = logging.getLogger(__name__)
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or('!'), pm_help=True)
+
+# COGS
 bot.load_extension('cogs.web_crawler')
 bot.load_extension('cogs.info')
 
 
 @bot.event
 async def on_ready():
+    bot.session = aiohttp.ClientSession(loop=bot.loop)
     print('Bot ready')
 
 
