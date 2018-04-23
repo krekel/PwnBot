@@ -30,7 +30,7 @@ async def on_message(message):
     if message.author.bot:
         pass
     else:
-        logger.info(f'AUTHOR: {message.author}, CHANNEL: {message.channel}, CONTENT: {message.content}')
+        logger.info(f'AUTHOR: {message.author}, CHANNEL: {message.channel}, CONTENT: {message.content}'.encode('utf-8'))
         await bot.process_commands(message)
 
 
