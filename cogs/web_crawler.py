@@ -31,7 +31,7 @@ class WebCrawler:
                 upcoming = await response.json()
                 for i, _ in enumerate(upcoming):
                     value = '\u2620' + upcoming[i]['title']
-                    embed.add_field(name='', value=value, inline=True)
+                    embed.add_field(name='-', value=value)
 
         await ctx.send(content=None, embed=embed)
 
@@ -41,6 +41,8 @@ class WebCrawler:
         # TODO fix hours so that upcoming will display correct events
 
         # 365 year and 30 days in a month
+        # TODO find a permanent fix
+        temp = 86400
         seconds_in_a_week = 604800
         seconds_in_a_month = 2592000
         seconds_in_a_year = 31557600
@@ -48,11 +50,11 @@ class WebCrawler:
         start = round(time.time())
 
         if option == 'month':
-            return start, (start + seconds_in_a_month)
+            return start, (start + seconds_in_a_month + temp)
         elif option == 'week':
-            return start, (start + seconds_in_a_week)
+            return start, (start + seconds_in_a_week + temp)
         elif option == 'year':
-            return start, (start + seconds_in_a_year)
+            return start, (start + seconds_in_a_year + temp)
 
 
 def setup(bot):
