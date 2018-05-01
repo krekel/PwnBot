@@ -16,6 +16,7 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or('!'), pm_help=True)
 # COGS
 bot.load_extension('cogs.web_crawler')
 bot.load_extension('cogs.info')
+bot.load_extension('cogs.poll')
 
 
 @bot.event
