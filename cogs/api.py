@@ -1,27 +1,26 @@
-import bs4
 import discord
-import json
 import time
 
 
 from discord.ext import commands
 
 
-class WebCrawler:
+class API:
     def __init__(self, bot):
         self.bot = bot
 
     @commands.group()
     async def ctf(self, ctx):
         if ctx.invoked_subcommand is None:
-            await ctx.send('Invalid ctf command.')
+            await ctx.send('Invalid ctf sub-command.')
 
     @ctf.command()
     async def upcoming(self, ctx, option: str):
         arguments = ('week', 'month', 'year')
 
-        if option not in arguments:
-            await ctx.send('Invalid argument. Choose one of the following -> week, month or year')
+        # if option not in arguments:
+        #     await ctx.send('Invalid argument for !ctf upcoming [argument]. Choose one of the following -> week, month or year')
+        #     return
 
         embed = discord.Embed(colour=0x3DF270, title=f'Upcoming CTFs for this {option}')
         start, end = self._calculate_timestamp(option)
@@ -31,9 +30,15 @@ class WebCrawler:
                 upcoming = await response.json()
                 for i, _ in enumerate(upcoming):
                     value = '\u2620' + upcoming[i]['title']
-                    embed.add_field(name='-', value=value)
+                    ctf_date = upcoming[i]['start'] + '-' + upcoming[i]['finish']
+                    embed.add_field(name=ctf_date, value=value, inline=False)
 
         await ctx.send(content=None, embed=embed)
+
+    @upcoming.error
+    async def upcoming_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send('Missing arguments for !ctf upcoming [argument] --> [week, month, year]')
 
     def _calculate_timestamp(self, option):
 
@@ -55,9 +60,11 @@ class WebCrawler:
             return start, (start + seconds_in_a_week + temp)
         elif option == 'year':
             return start, (start + seconds_in_a_year + temp)
+        else:
+            return
 
 
 def setup(bot):
-    bot.add_cog(WebCrawler(bot))
+    bot.add_cog(API(bot))
 
 

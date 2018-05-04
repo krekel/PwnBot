@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 bot = commands.Bot(command_prefix=commands.when_mentioned_or('!'), pm_help=True)
 
 # COGS
-bot.load_extension('cogs.web_crawler')
+bot.load_extension('cogs.api')
 bot.load_extension('cogs.info')
 bot.load_extension('cogs.poll')
 
@@ -33,6 +33,7 @@ async def on_message(message):
     else:
         logger.info(f'AUTHOR: {message.author}, CHANNEL: {message.channel}, CONTENT: {message.content}'.encode('utf-8'))
         await bot.process_commands(message)
+
 
 
 @bot.command()
