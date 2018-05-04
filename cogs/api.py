@@ -1,5 +1,6 @@
 import discord
 import time
+import datetime
 
 
 from discord.ext import commands
@@ -18,29 +19,26 @@ class API:
     async def upcoming(self, ctx, option: str):
         arguments = ('week', 'month', 'year')
 
-        # if option not in arguments:
-        #     await ctx.send('Invalid argument for !ctf upcoming [argument]. Choose one of the following -> week, month or year')
-        #     return
+        if option not in arguments:
+            await ctx.send('Invalid argument for !ctf upcoming [argument]. Choose one of the following -> week, month or year')
+            return
 
         embed = discord.Embed(colour=0x3DF270, title=f'Upcoming CTFs for this {option}')
         start, end = self._calculate_timestamp(option)
-        print(start, end)
 
         async with self.bot.session.get(f'https://ctftime.org/api/v1/events/?limit=100&start={start}&finish={end}') as response:
                 upcoming = await response.json()
                 for i, _ in enumerate(upcoming):
                     value = '\u2620' + upcoming[i]['title']
-                    ctf_date = upcoming[i]['start'] + '-' + upcoming[i]['finish']
+                    ctf_start = self.parse_date(upcoming[i]['start'])
+                    ctf_end = self.parse_date(upcoming[i]['finish'])
+                    ctf_date = f'Starts: {ctf_start} \n Ends: {ctf_end}'
                     embed.add_field(name=ctf_date, value=value, inline=False)
 
         await ctx.send(content=None, embed=embed)
 
-    @upcoming.error
-    async def upcoming_error(self, ctx, error):
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send('Missing arguments for !ctf upcoming [argument] --> [week, month, year]')
-
-    def _calculate_timestamp(self, option):
+    @staticmethod
+    def _calculate_timestamp(option):
 
         # TODO calculate seconds according to leap year, 30/31/28(9) day month
         # TODO fix hours so that upcoming will display correct events
@@ -62,6 +60,22 @@ class API:
             return start, (start + seconds_in_a_year + temp)
         else:
             return
+
+    @staticmethod
+    def parse_date(date):
+        data = date.replace('T', ' ').replace('-', ' ').split(' ')
+        year = int(data[0])
+        month = int(data[1])
+        day = int(data[2])
+
+        time_ = data[3].split(':')
+        hour = int(time_[0])
+        minutes = int(time_[1])
+        seconds = int(time_[2][0:2])
+
+        p_date = datetime.datetime(year, month, day, hour, minutes, seconds)
+
+        return p_date.strftime('%a,%d %b, %y %H:%M')
 
 
 def setup(bot):
