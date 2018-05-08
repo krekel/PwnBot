@@ -11,32 +11,37 @@ class Poll:
         # Active sessions
         self.sessions = []
 
+    @commands.has_any_role('Mod', 'Admin')
     @commands.command()
     async def poll(self, ctx, topic: str, *, options: str):
         if self.get_session(ctx.channel) not in self.sessions:
-            print(options)
-            # TODO fix choices cleanup
-            choices = [option for option in options.strip().split(' ')]
-            poll_session = PollSession(self.bot, ctx.channel, topic, options)
+
+            choices = [option.upper() for option in options.strip().split(' ')]
+            poll_session = PollSession(self.bot, ctx.channel, topic, choices)
             self.sessions.append(poll_session)
 
-            await ctx.send(topic + " " + str(choices) + " " + str(ctx.channel))
+            await ctx.send(f'Poll session started!\n'
+                           f'Topic: {topic}\n'
+                           f'Voting Options: {str(choices)}\n'
+                           f'To vote type ?[choice]')
         else:
             await ctx.send('There is an active poll in this channel.\n'
                            f'End it before creating another one. [!endpoll]')
 
+    @commands.has_any_role('Mod', 'Admin')
     @commands.command(name='endpoll')
     async def end_poll(self, ctx):
         session = self.get_session(ctx.channel)
+        self.sessions.remove(session)
         await ctx.send(f'Poll session for channel {ctx.channel} has ended.\n'
-                       f'Results {str(session.choices)}')
+                       f'{session.poll_results()}')
 
     async def on_message(self, message):
         if not message.author.bot:
             session = self.get_session(message.channel)
             if session and message.content.startswith(POLL_PREFIX):
                 # count_votes
-                session.check_vote(message.content)
+                session.check_vote(message.content.upper(), message.author)
 
     def get_session(self, channel):
         for session in self.sessions:
@@ -51,26 +56,28 @@ class PollSession:
         self.channel = channel
         self.topic = topic
         self.choices = self._convert(choices)
+        self.voted = []
 
-    def check_vote(self, message: str):
-        vote = message.replace('?', '').strip()
-
-        if vote in self.choices.keys():
+    def check_vote(self, message, author):
+        vote = message.replace('?', '').split(' ')[0]
+        # refactor
+        if author.id not in self.voted and vote in self.choices.keys():
+            self.voted.append(author.id)
             self.choices[vote] += 1
 
     @staticmethod
     def _convert(lst) -> dict:
         choices = {}
-        print(lst)
         for item in lst:
-            print(item)
             choices[item] = 0
 
-        print(choices)
         return choices
 
-    def poll_results(self):
-        pass
+    def poll_results(self) -> str:
+        msg = 'Poll Results:\n'
+        for k, v in self.choices.items():
+            msg += f'{k}: {v}\n'
+        return msg
 
 
 def setup(bot):

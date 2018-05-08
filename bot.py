@@ -35,6 +35,15 @@ async def on_message(message):
         await bot.process_commands(message)
 
 
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send(f'Missing arguments for {ctx.command}')
+    elif isinstance(error, commands.CommandNotFound):
+        pass
+    # TODO finish error handling
+
+
 @bot.command()
 async def ping(ctx):
     await ctx.send('Pong')
