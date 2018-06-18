@@ -20,14 +20,9 @@ class PwnTools:
     async def hexd(self, ctx):
         file = ctx.message.attachments[0]
 
-
-        async with self.bot.session.get(file.url) as file:
-            pass
-
-
-        # with open(file.filename, 'r') as f:
-        #     data = f.read()
-        #     data = binascii.hexlify(data).decode('UTF-8')
+        async with self.bot.session.get(file.url) as resp:
+            data = await resp.read()
+            data = binascii.hexlify(data).decode('UTF-8')
 
         # Hex View
         hexview = []
@@ -57,7 +52,7 @@ class PwnTools:
             file_dump += '\n'
         print(file_dump)
 
-        await ctx.send(file.url)
+        await ctx.send(file_dump)
 
     @tools.command()
     async def b64e(self, ctx, plaintext):

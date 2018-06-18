@@ -7,8 +7,8 @@ class Info:
         self.bot = bot
 
     @commands.command()
-    async def info(self, ctx):
-        await ctx.send('Bot info')
+    async def help(self, ctx):
+        await ctx.send('')
 
 
 def setup(bot):
