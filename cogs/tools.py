@@ -1,6 +1,7 @@
 import discord
 import binascii
 
+from base64 import b64decode, b64encode
 from discord.ext import commands
 
 HEX_PATH = '~/PycharmProjects/PwnBot/hexdumps'
@@ -44,12 +45,14 @@ class PwnTools:
         await ctx.send(output)
 
     @tools.command()
-    async def b64e(self, ctx, plaintext):
-        pass
+    async def b64e(self, ctx, text: str):
+        plain_text = bytearray(text, 'utf-8')
+        encoded_text = b64encode(plain_text)
+        await ctx.send(encoded_text.decode())
 
     @tools.command()
     async def b64d(self, ctx, encoded_string):
-        pass
+        await ctx.send(b64decode(encoded_string).decode())
 
     @tools.command()
     async def delete(self, ctx, reminder_id):
