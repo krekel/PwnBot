@@ -1,10 +1,9 @@
 import discord
 import binascii
 
+from config import HEX_PATH
 from base64 import b64decode, b64encode
 from discord.ext import commands
-
-HEX_PATH = '~/PycharmProjects/PwnBot/hexdumps'
 
 
 class PwnTools:
@@ -19,16 +18,14 @@ class PwnTools:
     @tools.command()
     async def hexd(self, ctx):
         author = ctx.message.author
+        print(author)
         file = ctx.message.attachments[0]
         output = ''
         offset = 0
 
-        print(file.url)
-
         async with self.bot.session.get(file.url) as resp:
             while True:
                 chunk = await resp.content.read(16)
-                print(chunk)
                 if len(chunk) == 0:
                     break
 
@@ -40,9 +37,14 @@ class PwnTools:
                 output += ''.join(f'{char}' if 32 < ord(char) < 128 else '.' for char in chunk.decode('ISO-8859-1'))
                 output += '\n'
                 offset += 16
-        print(output)
 
-        await ctx.send(output)
+        filename = HEX_PATH + 'hexd_' + author.split('#')[0] + '.txt'
+
+        # with open(filename, 'w') as f:
+        #     f.write(output)
+        #
+        # with open(filename, 'r') as f:
+        await author.send(output)
 
     @tools.command()
     async def b64e(self, ctx, text: str):
